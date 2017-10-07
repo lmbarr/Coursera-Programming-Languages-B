@@ -1,0 +1,44 @@
+
+#lang racket
+
+(provide (all-defined-out)) ;; so we can put tests in a second file
+
+;1
+(define (sequence low high stride)
+    (if (> low high)
+        null
+        (cons low (sequence (+ low stride) high stride))))
+;2
+(define (string-append-map xs suffix)
+    (map (lambda (i) (string-append i suffix)) xs))
+;3
+(define (list-nth-mod xs n)
+    (cond [(< n 0) (error "list-nth-mod: negative number")]
+          [(null? xs) (error "list-nth-mod: empty list")]
+          [#t (car (list-tail xs (remainder n (length xs))))]))
+;4
+(define (stream-for-n-steps s n)
+    (if (= n 1)
+        (list (car (s)))
+        (cons (car (s)) (stream-for-n-steps (cdr (s)) (- n 1)))))
+;5
+(define funny-number-stream
+    (letrec ([f (lambda (x)
+                (if (zero? (remainder x 5))
+                (cons (* -1 x) (lambda () (f (+ x 1))))
+                (cons x (lambda () (f (+ x 1))))))])
+    (lambda () (f 1))))
+;6
+(define dan-then-dog
+    (letrec ([f (lambda (x)
+                (if (= x "dan.jpg")
+                (cons "dan.jpg" (lambda () (f "dog.jpg"))
+                (cons "dog.jpg" (lambda () (f "dan.jpg"))))])
+    (lambda () (f "dan.jpg"))))
+;7
+(define (stream-add-zero s)
+    (lambda () (cons (cons 0 (car (s))) (stream-add-zero (cdr (s))))))
+;8
+(define (cycle-lists xs ys)
+    (letrec ([f (lambda (n1 n2) (cons (cons  (list-nth-mod xs n1) (list-nth-mod ys n2)) (lambda () (f (+ n1 1) (+ n2 1)))))])
+    (lambda () (f 0 0))))
